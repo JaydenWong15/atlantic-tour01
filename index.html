@@ -536,20 +536,25 @@
     }
 
     /* ---------- Data flow ---------- */
+    const history = []; // past user questions and assistant replies
+
     async function ask(question) {
       const csvRes = await fetch(CSV_URL, { cache: "no-store" });
       if (!csvRes.ok) throw new Error("Could not load the tour catalogue (HTTP " + csvRes.status + ").");
       const csv = await csvRes.text();
       const fetchedAt = timeNow();
 
-      const res = await fetch(BRAIN_URL, {
+      // Earlier turns go first so the assistant remembers the conversation.
+      // Only the newest message carries the live CSV, which keeps requests small.
+      const latest = { role: "user", content: "Live data (CSV):\n" + csv + "\n\nCustomer question: " + question };
+      const post = msgs => fetch(BRAIN_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: SYSTEM,
-          messages: [{ role: "user", content: "Live data (CSV):\n" + csv + "\n\nCustomer question: " + question }]
-        })
+        body: JSON.stringify({ system: SYSTEM, messages: msgs })
       });
+      let res = await post([...history, latest]);
+      // If the server rejects the longer conversation, fall back to the single question
+      if (!res.ok && history.length) res = await post([latest]);
       if (!res.ok) {
         const body = await res.text().catch(() => "");
         throw new Error("The assistant returned an error (HTTP " + res.status + ")" + (body ? ". " + body.slice(0, 200) : "."));
@@ -559,6 +564,10 @@
 
       let tours = [];
       try { tours = parseCSV(csv); } catch (_) { tours = []; }
+      // Remember this turn (without the CSV), keeping the last 6 exchanges
+      history.push({ role: "user", content: question }, { role: "assistant", content: data.reply });
+      while (history.length > 12) history.splice(0, 2);
+
       return { reply: data.reply, tours, fetchedAt };
     }
 
