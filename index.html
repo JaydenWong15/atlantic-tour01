@@ -491,7 +491,7 @@
       const med = median(tours.map(t => parseFloat(t.price_eur)));
 
       // Tours the assistant mentioned, in the order it mentioned them
-      const found = tours
+      let found = tours
         .map(t => {
           const idPos = t.tour_id ? lower.indexOf(t.tour_id.toLowerCase()) : -1;
           const namePos = t.tour_name ? lower.indexOf(t.tour_name.toLowerCase()) : -1;
@@ -502,15 +502,22 @@
         .sort((a, b) => a.pos - b.pos)
         .map(x => x.t);
 
-      // Split the reply into intro text and per-tour comments
+      // Split the reply into intro text and per-tour comments.
+      // A tour only gets a card when the bot actually suggests it. If it is only
+      // named in a warning (odd price, check with staff, not recommended), that
+      // line stays as plain text and no card is shown for it.
+      const WARNING = /implausib|unusual|unrealistic|suspicious|check with (our )?staff|not recommend|wouldn't recommend|would not recommend|avoid|exclude|left out|skipp?ed|error|mistake|seems? (very |extremely |incredibly )?high/i;
       const notes = {};
+      const suggested = new Set();
       const keep = [];
       reply.split("\n").forEach(line => {
         const l = line.toLowerCase();
-        const hit = found.find(t => l.includes(t.tour_id.toLowerCase()) || l.includes(t.tour_name.toLowerCase()));
-        if (hit) notes[hit.tour_id] = line.replace(/^\s*[-*•\d.]+\s*/, "").trim();
-        else keep.push(line);
+        const hits = found.filter(t => l.includes(t.tour_id.toLowerCase()) || l.includes(t.tour_name.toLowerCase()));
+        if (!hits.length) { keep.push(line); return; }
+        if (WARNING.test(line)) { keep.push(line); return; }
+        hits.forEach(t => { suggested.add(t.tour_id); notes[t.tour_id] = line.replace(/^\s*[-*\u2022\d.]+\s*/, "").trim(); });
       });
+      found = found.filter(t => suggested.has(t.tour_id));
       const intro = found.length ? keep.join("\n").replace(/\n{2,}/g, "\n").trim() : reply;
 
       const wrap = document.createElement("div");
