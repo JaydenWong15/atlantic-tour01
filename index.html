@@ -313,34 +313,34 @@
        title if one has no photo. New tours fall back to their town name. */
     const PHOTO_TITLES = {
       ACT001: ["Cliffs of Moher"],
-      ACT002: ["Inishmore", "Aran Islands"],
+      ACT002: ["Inishmore", "Dún Aonghasa"],
       ACT003: ["Diamond Hill (Connemara)", "Connemara National Park"],
       ACT004: ["Killary Harbour"],
       ACT005: ["Spanish Arch", "Galway"],
       ACT006: ["Sky Road", "Clifden"],
       ACT007: ["Achill Island"],
-      ACT008: ["Dog's Bay", "Roundstone"],
+      ACT008: ["Dog's Bay", "Gurteen Bay", "Roundstone", "Connemara"],
       ACT009: ["Croagh Patrick"],
       ACT010: ["Inishbofin, County Galway"],
       ACT011: ["The Burren"],
       ACT012: ["Kilkee"],
       ACT013: ["Great Western Greenway", "Westport, County Mayo"],
       ACT014: ["Loop Head Lighthouse", "Loop Head"],
-      ACT015: ["Kilkieran", "Connemara"],
+      ACT015: ["Kilkieran Bay", "Kilkieran", "Connemara"],
       ACT016: ["Doolough", "Delphi, County Mayo"],
-      ACT017: ["Aran Islands"],
+      ACT017: ["Inisheer", "Dún Aonghasa", "Inishmore"],
       ACT018: ["Salthill"],
       ACT019: ["Mweelrea"],
       ACT020: ["Dunguaire Castle", "Kinvara"],
-      ACT021: ["Wild Atlantic Way", "Cliffs of Moher"],
+      ACT021: ["Cliffs of Moher", "The Burren"],
       ACT022: ["Renvyle", "Twelve Bens"],
       ACT023: ["Clare Island"],
       ACT024: ["Galway Bay"],
-      ACT025: ["Fanore"],
+      ACT025: ["Fanore", "The Burren"],
       ACT026: ["Twelve Bens"],
       ACT027: ["Ballycroy National Park"],
-      ACT028: ["Inishmaan", "Aran Islands"],
-      ACT029: ["Spiddal"],
+      ACT028: ["Inishmaan", "Inisheer"],
+      ACT029: ["Spiddal", "Galway Bay"],
       ACT030: ["Keem Bay", "Achill Island"]
     };
     const photoCache = new Map();
@@ -353,6 +353,8 @@
           if (!res.ok) return null;
           const d = await res.json();
           if (d.type === "disambiguation" || !d.thumbnail || !d.thumbnail.source) return null;
+          // Skip maps, diagrams and signposts, keep real landscape photos
+          if (/\.svg|map|locator|location|sign|flag|coat_of_arms|logo/i.test(d.thumbnail.source)) return null;
           // Ask for a sharper version than the default small thumbnail
           const src = d.thumbnail.source.replace(/\/\d+px-/, "/640px-");
           return { src, fallback: d.thumbnail.source, page: d.content_urls?.desktop?.page || "", title: d.title };
