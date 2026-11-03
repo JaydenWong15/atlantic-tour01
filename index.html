@@ -17,9 +17,15 @@
       --sand-dark: #c9922f;
       --bot: #ffffff;
       --user: #1d7fa6;
+      --line: #d9e6ec;
       --error: #b42318;
       --error-bg: #fdecea;
-      --line: #d9e6ec;
+      --warn: #b45309;
+      --warn-bg: #fff4e0;
+      --ok: #1f8a4c;
+      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-title: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      --font-price: "Trebuchet MS", "Avenir Next", "Segoe UI Black", ui-rounded, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -31,12 +37,15 @@
         --line: #1e3a49;
         --error-bg: #3a1714;
         --error: #ffb4a8;
+        --warn-bg: #3a2a10;
+        --warn: #f5b754;
+        --ok: #4ade80;
       }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--font-ui);
       background: var(--foam);
       color: var(--text);
       display: flex;
@@ -45,7 +54,7 @@
     }
     .app {
       width: 100%;
-      max-width: 640px;
+      max-width: 680px;
       height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -60,16 +69,13 @@
       gap: 12px;
     }
     .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
+      width: 42px; height: 42px; border-radius: 50%;
       background: rgba(255, 255, 255, 0.15);
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
+      display: grid; place-items: center; flex-shrink: 0;
     }
-    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+    header h1 { font-family: var(--font-title); font-size: 1.3rem; font-weight: 700; }
     header p { font-size: 0.8rem; opacity: 0.8; }
+
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -81,6 +87,7 @@
     .msg { display: flex; flex-direction: column; max-width: 85%; }
     .msg.bot { align-self: flex-start; }
     .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.wide { max-width: 100%; width: 100%; }
     .bubble {
       padding: 11px 14px;
       border-radius: 18px;
@@ -89,35 +96,106 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-    .bot .bubble {
-      background: var(--bot);
-      border: 1px solid var(--line);
-      border-bottom-left-radius: 6px;
-    }
-    .user .bubble {
-      background: var(--user);
-      color: #fff;
-      border-bottom-right-radius: 6px;
-    }
-    .error .bubble {
-      background: var(--error-bg);
-      color: var(--error);
-      border-color: transparent;
-    }
-    .meta {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 4px;
-      padding: 0 6px;
-    }
+    .bot .bubble { background: var(--bot); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+    .user .bubble { background: var(--user); color: #fff; border-bottom-right-radius: 6px; }
+    .error .bubble { background: var(--error-bg); color: var(--error); border-color: transparent; }
     .thinking .bubble { color: var(--muted); font-style: italic; }
-    .dots span {
-      display: inline-block;
-      animation: blink 1.4s infinite both;
-    }
+    .dots span { display: inline-block; animation: blink 1.4s infinite both; }
     .dots span:nth-child(2) { animation-delay: 0.2s; }
     .dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+    .meta { font-size: 0.72rem; color: var(--muted); margin-top: 6px; padding: 0 6px; }
+
+    /* Tour cards */
+    .cards { display: grid; gap: 12px; margin-top: 10px; }
+    @media (min-width: 560px) { .cards { grid-template-columns: 1fr 1fr; } }
+    .tour {
+      --c: #64748b;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 14px rgba(7, 42, 66, 0.06);
+    }
+    .tour.cliff   { --c: #2f855a; }
+    .tour.boat    { --c: #1d6fa5; }
+    .tour.kayak   { --c: #0f8b8d; }
+    .tour.food    { --c: #d9822b; }
+    .tour.cycle   { --c: #6b46c1; }
+    .tour.outdoor { --c: #c05680; }
+    .banner {
+      position: relative;
+      height: 92px;
+      background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 55%, #072a42));
+      color: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 12px;
+      overflow: hidden;
+    }
+    .banner .waves { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 34px; opacity: 0.35; }
+    .chip {
+      position: relative;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 9px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .banner .icon { position: relative; width: 52px; height: 52px; }
+    .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .tour h3 {
+      font-family: var(--font-title);
+      font-size: 1.12rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .where { font-size: 0.8rem; color: var(--muted); }
+    .price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .price {
+      font-family: var(--font-price);
+      font-weight: 800;
+      font-size: 1.6rem;
+      letter-spacing: -0.02em;
+      color: var(--c);
+      font-variant-numeric: tabular-nums;
+    }
+    .price small { font-family: var(--font-ui); font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+    .duration { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .slots { font-size: 0.8rem; font-weight: 600; }
+    .bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 4px; }
+    .bar i { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+    .slots.low { color: var(--warn); }
+    .slots.low + .bar i, .bar.low i { background: var(--warn); }
+    .slots.none { color: var(--error); }
+    .desc { font-size: 0.85rem; line-height: 1.5; color: var(--text); opacity: 0.85; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--c) 12%, transparent);
+      color: var(--c);
+      font-weight: 600;
+    }
+    .tag.offer { background: var(--sand); color: var(--sea-deep); }
+    .flag {
+      font-size: 0.78rem;
+      line-height: 1.4;
+      background: var(--warn-bg);
+      color: var(--warn);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
     form {
       display: flex;
       gap: 8px;
@@ -126,27 +204,20 @@
       background: var(--card);
     }
     #input {
-      flex: 1;
-      min-width: 0;
+      flex: 1; min-width: 0;
       padding: 12px 16px;
       border-radius: 999px;
       border: 1px solid var(--line);
       background: var(--foam);
       color: var(--text);
-      font: inherit;
-      font-size: 1rem;
+      font: inherit; font-size: 1rem;
       outline: none;
     }
     #input:focus { border-color: var(--wave); }
     #send {
-      padding: 0 20px;
-      border: none;
-      border-radius: 999px;
-      background: var(--sand);
-      color: var(--sea-deep);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
+      padding: 0 20px; border: none; border-radius: 999px;
+      background: var(--sand); color: var(--sea-deep);
+      font: inherit; font-weight: 700; cursor: pointer;
     }
     #send:hover { background: var(--sand-dark); }
     #send:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -186,48 +257,180 @@
     const input = document.getElementById("input");
     const send = document.getElementById("send");
 
+    /* ---------- Category styling and illustrations ---------- */
+    const CATEGORY = {
+      "cliff walk":       { cls: "cliff",   icon: '<path d="M3 21 9 9l4 6 3-4 5 10Z"/><path d="M14 5q1.5-1.5 3 0 1.5-1.5 3 0"/>' },
+      "boat tour":        { cls: "boat",    icon: '<path d="M12 3v12"/><path d="M12 4l6 9h-6"/><path d="M3 15h18l-3 4H6Z"/><path d="M2 22q2.5-1.5 5 0t5 0 5 0 5 0"/>' },
+      "kayak trip":       { cls: "kayak",   icon: '<path d="M2 15q10 4 20 0-10-3-20 0Z"/><path d="M5 6l14 14"/><circle cx="12" cy="10" r="1.8"/>' },
+      "food tour":        { cls: "food",    icon: '<path d="M7 3v7a2 2 0 0 0 4 0V3"/><path d="M9 10v11"/><path d="M17 3c-2.5 2-2.5 7 0 8v10"/>' },
+      "cycling":          { cls: "cycle",   icon: '<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h6l2 7"/><path d="M10 9l3 7H6"/><path d="M14 6h3"/>' },
+      "outdoor activity": { cls: "outdoor", icon: '<circle cx="16" cy="7" r="2.5"/><path d="M16 2v1M21 7h-1M19.5 3.5l-.7.7"/><path d="M2 21l6-8 4 4 3-4 7 8Z"/>' }
+    };
+    const WAVES = '<svg class="waves" viewBox="0 0 200 34" preserveAspectRatio="none"><path d="M0 18q25-14 50 0t50 0 50 0 50 0V34H0Z" fill="#fff"/></svg>';
+
+    /* ---------- Helpers ---------- */
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function timeNow() {
+      return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    }
+    const euro = n => new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+
+    // Proper CSV parser (handles quotes, commas and line breaks inside quotes)
+    function parseCSV(text) {
+      const rows = []; let row = [], field = "", q = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (q) {
+          if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
+          else if (ch === '"') q = false;
+          else field += ch;
+        } else if (ch === '"') q = true;
+        else if (ch === ",") { row.push(field); field = ""; }
+        else if (ch === "\n" || ch === "\r") {
+          if (ch === "\r" && text[i + 1] === "\n") i++;
+          row.push(field); rows.push(row); row = []; field = "";
+        } else field += ch;
+      }
+      if (field || row.length) { row.push(field); rows.push(row); }
+      const head = rows.shift().map(h => h.trim());
+      return rows.filter(r => r.some(v => v.trim())).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? "").trim()])));
+    }
+
+    function median(nums) {
+      const s = nums.filter(n => !isNaN(n)).sort((a, b) => a - b);
+      if (!s.length) return 0;
+      const m = Math.floor(s.length / 2);
+      return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+    }
+
+    /* ---------- Rendering ---------- */
     function addMessage(text, who, opts = {}) {
       const wrap = document.createElement("div");
       wrap.className = "msg " + who + (opts.extra ? " " + opts.extra : "");
       const bubble = document.createElement("div");
       bubble.className = "bubble";
-      if (opts.html) bubble.innerHTML = opts.html;
-      else bubble.textContent = text;
+      if (opts.html) bubble.innerHTML = opts.html; else bubble.textContent = text;
       wrap.appendChild(bubble);
-      if (opts.meta) {
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = opts.meta;
-        wrap.appendChild(meta);
-      }
       chat.appendChild(wrap);
       chat.scrollTop = chat.scrollHeight;
       return wrap;
     }
 
-    function timeNow() {
-      return new Date().toLocaleTimeString("en-GB", {
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-      });
+    function tourCard(t, med, aiNote) {
+      const cat = CATEGORY[(t.category || "").toLowerCase()] || { cls: "", icon: '<circle cx="12" cy="12" r="8"/>' };
+      const price = parseFloat(t.price_eur);
+      const slots = parseInt(t.slots_this_week, 10);
+      const cap = parseInt(t.capacity, 10);
+      const hasNote = /note to ai/i.test(t.description);
+      const desc = t.description.replace(/\s*Note to AI:[\s\S]*$/i, "");
+
+      const reasons = [];
+      if (isNaN(price)) reasons.push("Price is missing.");
+      else if (med && (price > med * 5 || price < med * 0.3)) reasons.push("This price looks unusual compared with our other tours.");
+      if (hasNote) reasons.push("The listing contains an unusual note.");
+      if (aiNote && /implausib|unusual|check with staff|confirm/i.test(aiNote)) reasons.push(aiNote);
+      const flag = reasons.length
+        ? `<div class="flag">⚠ ${esc([...new Set(reasons)].join(" "))} Please check with our staff before booking.</div>` : "";
+
+      let slotsCls = "", slotsTxt;
+      if (isNaN(slots)) slotsTxt = "Slots not listed";
+      else if (slots === 0) { slotsCls = "none"; slotsTxt = "Sold out this week"; }
+      else { slotsCls = slots <= 3 ? "low" : ""; slotsTxt = `${slots} slot${slots === 1 ? "" : "s"} left this week`; }
+      const pct = !isNaN(slots) && cap ? Math.min(100, Math.round((slots / cap) * 100)) : 0;
+
+      return `
+        <article class="tour ${cat.cls}">
+          <div class="banner">
+            <span class="chip">${esc(t.category)}</span>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${cat.icon}</svg>
+            ${WAVES}
+          </div>
+          <div class="body">
+            <h3>${esc(t.tour_name)}</h3>
+            <div class="where">📍 ${esc(t.location)} · ${esc(t.meeting_point)}</div>
+            <div class="price-row">
+              <div class="price">${isNaN(price) ? "N/A" : esc(euro(price))} <small>per person</small></div>
+              <div class="duration">⏱ ${esc(t.duration_hours)} hrs</div>
+            </div>
+            <div>
+              <div class="slots ${slotsCls}">${esc(slotsTxt)}</div>
+              <div class="bar ${slotsCls}"><i style="width:${pct}%"></i></div>
+            </div>
+            <p class="desc">${esc(desc)}</p>
+            <div class="tags">
+              <span class="tag">📅 ${esc(t.availability)}</span>
+              <span class="tag">👥 Up to ${esc(t.capacity)}</span>
+              ${t.special_offer ? `<span class="tag offer">🎁 ${esc(t.special_offer)}</span>` : ""}
+            </div>
+            ${flag}
+          </div>
+        </article>`;
     }
 
+    function renderAnswer(reply, tours, fetchedAt) {
+      const lower = reply.toLowerCase();
+      const med = median(tours.map(t => parseFloat(t.price_eur)));
+
+      // Find the tours the assistant mentioned, in the order it mentioned them
+      const found = tours
+        .map(t => {
+          const idPos = t.tour_id ? lower.indexOf(t.tour_id.toLowerCase()) : -1;
+          const namePos = t.tour_name ? lower.indexOf(t.tour_name.toLowerCase()) : -1;
+          const pos = [idPos, namePos].filter(p => p >= 0);
+          return { t, pos: pos.length ? Math.min(...pos) : -1 };
+        })
+        .filter(x => x.pos >= 0)
+        .sort((a, b) => a.pos - b.pos)
+        .map(x => x.t);
+
+      // Split the reply into intro text and per-tour comments
+      const notes = {};
+      const keep = [];
+      reply.split("\n").forEach(line => {
+        const l = line.toLowerCase();
+        const hit = found.find(t => l.includes(t.tour_id.toLowerCase()) || l.includes(t.tour_name.toLowerCase()));
+        if (hit) notes[hit.tour_id] = line.replace(/^\s*[-*•\d.]+\s*/, "").trim();
+        else keep.push(line);
+      });
+      const intro = found.length ? keep.join("\n").replace(/\n{3,}/g, "\n\n").trim() : reply;
+
+      const wrap = document.createElement("div");
+      wrap.className = "msg bot" + (found.length ? " wide" : "");
+      if (intro) {
+        const b = document.createElement("div");
+        b.className = "bubble";
+        b.textContent = intro;
+        wrap.appendChild(b);
+      }
+      if (found.length) {
+        const grid = document.createElement("div");
+        grid.className = "cards";
+        grid.innerHTML = found.map(t => tourCard(t, med, notes[t.tour_id])).join("");
+        wrap.appendChild(grid);
+      }
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = "Data fetched live at " + fetchedAt;
+      wrap.appendChild(meta);
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    /* ---------- Data flow ---------- */
     async function ask(question) {
-      // 1. Fetch the live catalogue
       const csvRes = await fetch(CSV_URL, { cache: "no-store" });
       if (!csvRes.ok) throw new Error("Could not load the tour catalogue (HTTP " + csvRes.status + ").");
       const csv = await csvRes.text();
       const fetchedAt = timeNow();
 
-      // 2. Send to the class brain
       const res = await fetch(BRAIN_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           system: SYSTEM,
-          messages: [{
-            role: "user",
-            content: "Live data (CSV):\n" + csv + "\n\nCustomer question: " + question
-          }]
+          messages: [{ role: "user", content: "Live data (CSV):\n" + csv + "\n\nCustomer question: " + question }]
         })
       });
       if (!res.ok) {
@@ -235,10 +438,11 @@
         throw new Error("The assistant returned an error (HTTP " + res.status + ")" + (body ? ". " + body.slice(0, 200) : "."));
       }
       const data = await res.json();
-      if (!data || typeof data.reply !== "string") {
-        throw new Error("The assistant sent back a response without a reply.");
-      }
-      return { reply: data.reply, fetchedAt };
+      if (!data || typeof data.reply !== "string") throw new Error("The assistant sent back a response without a reply.");
+
+      let tours = [];
+      try { tours = parseCSV(csv); } catch (_) { tours = []; }
+      return { reply: data.reply, tours, fetchedAt };
     }
 
     form.addEventListener("submit", async (e) => {
@@ -257,9 +461,9 @@
       });
 
       try {
-        const { reply, fetchedAt } = await ask(question);
+        const { reply, tours, fetchedAt } = await ask(question);
         thinking.remove();
-        addMessage(reply, "bot", { meta: "Data fetched live at " + fetchedAt });
+        renderAnswer(reply, tours, fetchedAt);
       } catch (err) {
         thinking.remove();
         addMessage("Sorry, something went wrong. " + (err && err.message ? err.message : String(err)), "bot", { extra: "error" });
