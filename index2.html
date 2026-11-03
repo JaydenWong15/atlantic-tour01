@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ask Atlantic</title>
+  <style>
+    :root {
+      --sea: #0b3c5d;
+      --sea-deep: #072a42;
+      --wave: #1d7fa6;
+      --foam: #eef5f8;
+      --card: #ffffff;
+      --text: #14232e;
+      --muted: #6b7f8c;
+      --sand: #e8b04b;
+      --sand-dark: #c9922f;
+      --bot: #ffffff;
+      --user: #1d7fa6;
+      --error: #b42318;
+      --error-bg: #fdecea;
+      --line: #d9e6ec;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --foam: #0a1820;
+        --card: #0f222d;
+        --text: #e6f0f5;
+        --muted: #8aa1ae;
+        --bot: #15303e;
+        --line: #1e3a49;
+        --error-bg: #3a1714;
+        --error: #ffb4a8;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--foam);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app {
+      width: 100%;
+      max-width: 640px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+    }
+    header {
+      background: linear-gradient(135deg, var(--sea-deep), var(--sea) 60%, var(--wave));
+      color: #fff;
+      padding: 18px 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+    header p { font-size: 0.8rem; opacity: 0.8; }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .msg { display: flex; flex-direction: column; max-width: 85%; }
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .bubble {
+      padding: 11px 14px;
+      border-radius: 18px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .bot .bubble {
+      background: var(--bot);
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 6px;
+    }
+    .user .bubble {
+      background: var(--user);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+    .error .bubble {
+      background: var(--error-bg);
+      color: var(--error);
+      border-color: transparent;
+    }
+    .meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+      padding: 0 6px;
+    }
+    .thinking .bubble { color: var(--muted); font-style: italic; }
+    .dots span {
+      display: inline-block;
+      animation: blink 1.4s infinite both;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+    form {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--card);
+    }
+    #input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--foam);
+      color: var(--text);
+      font: inherit;
+      font-size: 1rem;
+      outline: none;
+    }
+    #input:focus { border-color: var(--wave); }
+    #send {
+      padding: 0 20px;
+      border: none;
+      border-radius: 999px;
+      background: var(--sand);
+      color: var(--sea-deep);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #send:hover { background: var(--sand-dark); }
+    #send:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+          <path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+          <path d="M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Ask Atlantic</h1>
+        <p>Atlantic Coast Tours, west of Ireland</p>
+      </div>
+    </header>
+
+    <div id="chat" aria-live="polite"></div>
+
+    <form id="form">
+      <input id="input" type="text" placeholder="Ask about tours, prices, slots..." autocomplete="off" required>
+      <button id="send" type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/1balBGf8QhZ5dc-RCCAPt2kcrcf6m_YRh0HL_r8bBtJw/export?format=csv";
+    const BRAIN_URL = "https://luas-class.kluxy.app/chat";
+    const SYSTEM = "You are Ask Atlantic, the customer assistant for Atlantic Coast Tours. Answer only from the live data you are given. Quote exact prices in euro and slots left. If something is not in the data, say so. If a value looks implausible, say so and suggest the customer checks with staff. Be warm and brief.";
+
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const send = document.getElementById("send");
+
+    function addMessage(text, who, opts = {}) {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + who + (opts.extra ? " " + opts.extra : "");
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      if (opts.html) bubble.innerHTML = opts.html;
+      else bubble.textContent = text;
+      wrap.appendChild(bubble);
+      if (opts.meta) {
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = opts.meta;
+        wrap.appendChild(meta);
+      }
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+      return wrap;
+    }
+
+    function timeNow() {
+      return new Date().toLocaleTimeString("en-GB", {
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+      });
+    }
+
+    async function ask(question) {
+      // 1. Fetch the live catalogue
+      const csvRes = await fetch(CSV_URL, { cache: "no-store" });
+      if (!csvRes.ok) throw new Error("Could not load the tour catalogue (HTTP " + csvRes.status + ").");
+      const csv = await csvRes.text();
+      const fetchedAt = timeNow();
+
+      // 2. Send to the class brain
+      const res = await fetch(BRAIN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: SYSTEM,
+          messages: [{
+            role: "user",
+            content: "Live data (CSV):\n" + csv + "\n\nCustomer question: " + question
+          }]
+        })
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        throw new Error("The assistant returned an error (HTTP " + res.status + ")" + (body ? ". " + body.slice(0, 200) : "."));
+      }
+      const data = await res.json();
+      if (!data || typeof data.reply !== "string") {
+        throw new Error("The assistant sent back a response without a reply.");
+      }
+      return { reply: data.reply, fetchedAt };
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const question = input.value.trim();
+      if (!question) return;
+
+      addMessage(question, "user");
+      input.value = "";
+      send.disabled = true;
+      input.disabled = true;
+
+      const thinking = addMessage("", "bot", {
+        extra: "thinking",
+        html: 'Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>'
+      });
+
+      try {
+        const { reply, fetchedAt } = await ask(question);
+        thinking.remove();
+        addMessage(reply, "bot", { meta: "Data fetched live at " + fetchedAt });
+      } catch (err) {
+        thinking.remove();
+        addMessage("Sorry, something went wrong. " + (err && err.message ? err.message : String(err)), "bot", { extra: "error" });
+      } finally {
+        send.disabled = false;
+        input.disabled = false;
+        input.focus();
+      }
+    });
+
+    addMessage("Hi, I'm Ask Atlantic. Ask me about our tours, prices or how many slots are left this week.", "bot");
+    input.focus();
+  </script>
+</body>
+</html>
