@@ -54,7 +54,7 @@
     }
     .app {
       width: 100%;
-      max-width: 680px;
+      max-width: 920px;
       height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -95,8 +95,9 @@
       font-size: 0.95rem;
       white-space: pre-wrap;
       word-wrap: break-word;
+      max-width: 620px;
     }
-    .bot .bubble { background: var(--bot); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+    .bot .bubble { background: var(--bot); border: 1px solid var(--line); border-bottom-left-radius: 6px; align-self: flex-start; }
     .user .bubble { background: var(--user); color: #fff; border-bottom-right-radius: 6px; }
     .error .bubble { background: var(--error-bg); color: var(--error); border-color: transparent; }
     .thinking .bubble { color: var(--muted); font-style: italic; }
@@ -106,93 +107,132 @@
     @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
     .meta { font-size: 0.72rem; color: var(--muted); margin-top: 6px; padding: 0 6px; }
 
-    /* Tour cards */
-    .cards { display: grid; gap: 12px; margin-top: 10px; }
-    @media (min-width: 560px) { .cards { grid-template-columns: 1fr 1fr; } }
+    /* Tour cards, compact: 1 per row on phones, 2 on tablets, 3 on desktop */
+    .cards { display: grid; gap: 12px; margin-top: 10px; grid-template-columns: 1fr; }
+    @media (min-width: 480px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 760px) { .cards { grid-template-columns: repeat(3, 1fr); } }
     .tour {
       --c: #64748b;
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-top: 3px solid var(--c);
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       box-shadow: 0 4px 14px rgba(7, 42, 66, 0.06);
+      transition: transform 0.15s, box-shadow 0.15s;
     }
+    .tour:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(7, 42, 66, 0.12); }
     .tour.cliff   { --c: #2f855a; }
     .tour.boat    { --c: #1d6fa5; }
     .tour.kayak   { --c: #0f8b8d; }
     .tour.food    { --c: #d9822b; }
     .tour.cycle   { --c: #6b46c1; }
     .tour.outdoor { --c: #c05680; }
-    .banner {
+
+    .photo {
       position: relative;
-      height: 92px;
+      height: 120px;
       background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 55%, #072a42));
-      color: #fff;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      padding: 12px;
       overflow: hidden;
     }
-    .banner .waves { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 34px; opacity: 0.35; }
+    .photo img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .photo img.loaded { opacity: 1; }
+    .photo::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 45%, rgba(0,0,0,0.25));
+      pointer-events: none;
+    }
+    .photo .icon {
+      position: absolute; right: 10px; bottom: 10px;
+      width: 38px; height: 38px; opacity: 0.9;
+    }
+    .photo.has-img .icon { display: none; }
     .chip {
-      position: relative;
-      font-size: 0.7rem;
+      position: absolute; top: 8px; left: 8px; z-index: 2;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px 9px;
+      color: #fff;
+      background: var(--c);
+      padding: 3px 8px;
       border-radius: 999px;
-      backdrop-filter: blur(4px);
     }
-    .banner .icon { position: relative; width: 52px; height: 52px; }
-    .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .credit {
+      position: absolute; right: 6px; bottom: 4px; z-index: 2;
+      font-size: 0.58rem;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      display: none;
+    }
+    .credit:hover { text-decoration: underline; }
+    .photo.has-img .credit { display: block; }
+
+    .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .tour h3 {
       font-family: var(--font-title);
-      font-size: 1.12rem;
+      font-size: 0.98rem;
       font-weight: 700;
       line-height: 1.25;
       color: var(--text);
     }
-    .where { font-size: 0.8rem; color: var(--muted); }
-    .price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .where { font-size: 0.72rem; color: var(--muted); }
+    .price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
     .price {
       font-family: var(--font-price);
       font-weight: 800;
-      font-size: 1.6rem;
+      font-size: 1.3rem;
       letter-spacing: -0.02em;
       color: var(--c);
       font-variant-numeric: tabular-nums;
+      word-break: break-all;
     }
-    .price small { font-family: var(--font-ui); font-size: 0.75rem; font-weight: 500; color: var(--muted); }
-    .duration { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
-    .slots { font-size: 0.8rem; font-weight: 600; }
-    .bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 4px; }
+    .price small { font-family: var(--font-ui); font-size: 0.66rem; font-weight: 500; color: var(--muted); }
+    .duration { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+    .slots { font-size: 0.72rem; font-weight: 600; }
+    .bar { height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 3px; }
     .bar i { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
     .slots.low { color: var(--warn); }
-    .slots.low + .bar i, .bar.low i { background: var(--warn); }
+    .bar.low i { background: var(--warn); }
     .slots.none { color: var(--error); }
-    .desc { font-size: 0.85rem; line-height: 1.5; color: var(--text); opacity: 0.85; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .desc {
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: var(--text);
+      opacity: 0.85;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .desc.open { -webkit-line-clamp: unset; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; }
     .tag {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-size: 0.64rem;
+      padding: 2px 6px;
+      border-radius: 5px;
       background: color-mix(in srgb, var(--c) 12%, transparent);
       color: var(--c);
       font-weight: 600;
     }
     .tag.offer { background: var(--sand); color: var(--sea-deep); }
     .flag {
-      font-size: 0.78rem;
-      line-height: 1.4;
+      font-size: 0.7rem;
+      line-height: 1.35;
       background: var(--warn-bg);
       color: var(--warn);
-      border-radius: 10px;
-      padding: 8px 10px;
+      border-radius: 8px;
+      padding: 6px 8px;
       font-weight: 600;
     }
 
@@ -257,7 +297,7 @@
     const input = document.getElementById("input");
     const send = document.getElementById("send");
 
-    /* ---------- Category styling and illustrations ---------- */
+    /* ---------- Category styling and fallback icons ---------- */
     const CATEGORY = {
       "cliff walk":       { cls: "cliff",   icon: '<path d="M3 21 9 9l4 6 3-4 5 10Z"/><path d="M14 5q1.5-1.5 3 0 1.5-1.5 3 0"/>' },
       "boat tour":        { cls: "boat",    icon: '<path d="M12 3v12"/><path d="M12 4l6 9h-6"/><path d="M3 15h18l-3 4H6Z"/><path d="M2 22q2.5-1.5 5 0t5 0 5 0 5 0"/>' },
@@ -266,7 +306,81 @@
       "cycling":          { cls: "cycle",   icon: '<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h6l2 7"/><path d="M10 9l3 7H6"/><path d="M14 6h3"/>' },
       "outdoor activity": { cls: "outdoor", icon: '<circle cx="16" cy="7" r="2.5"/><path d="M16 2v1M21 7h-1M19.5 3.5l-.7.7"/><path d="M2 21l6-8 4 4 3-4 7 8Z"/>' }
     };
-    const WAVES = '<svg class="waves" viewBox="0 0 200 34" preserveAspectRatio="none"><path d="M0 18q25-14 50 0t50 0 50 0 50 0V34H0Z" fill="#fff"/></svg>';
+
+    /* ---------- Real photos ----------
+       Each tour maps to Wikipedia articles about the place. The page asks Wikipedia
+       for that article's lead photo (from Wikimedia Commons) and tries the next
+       title if one has no photo. New tours fall back to their town name. */
+    const PHOTO_TITLES = {
+      ACT001: ["Cliffs of Moher"],
+      ACT002: ["Inishmore", "Aran Islands"],
+      ACT003: ["Diamond Hill (Connemara)", "Connemara National Park"],
+      ACT004: ["Killary Harbour"],
+      ACT005: ["Spanish Arch", "Galway"],
+      ACT006: ["Sky Road", "Clifden"],
+      ACT007: ["Achill Island"],
+      ACT008: ["Dog's Bay", "Roundstone"],
+      ACT009: ["Croagh Patrick"],
+      ACT010: ["Inishbofin, County Galway"],
+      ACT011: ["The Burren"],
+      ACT012: ["Kilkee"],
+      ACT013: ["Great Western Greenway", "Westport, County Mayo"],
+      ACT014: ["Loop Head Lighthouse", "Loop Head"],
+      ACT015: ["Kilkieran", "Connemara"],
+      ACT016: ["Doolough", "Delphi, County Mayo"],
+      ACT017: ["Aran Islands"],
+      ACT018: ["Salthill"],
+      ACT019: ["Mweelrea"],
+      ACT020: ["Dunguaire Castle", "Kinvara"],
+      ACT021: ["Wild Atlantic Way", "Cliffs of Moher"],
+      ACT022: ["Renvyle", "Twelve Bens"],
+      ACT023: ["Clare Island"],
+      ACT024: ["Galway Bay"],
+      ACT025: ["Fanore"],
+      ACT026: ["Twelve Bens"],
+      ACT027: ["Ballycroy National Park"],
+      ACT028: ["Inishmaan", "Aran Islands"],
+      ACT029: ["Spiddal"],
+      ACT030: ["Keem Bay", "Achill Island"]
+    };
+    const photoCache = new Map();
+
+    async function wikiPhoto(title) {
+      if (photoCache.has(title)) return photoCache.get(title);
+      const p = (async () => {
+        try {
+          const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title.replace(/ /g, "_")));
+          if (!res.ok) return null;
+          const d = await res.json();
+          if (d.type === "disambiguation" || !d.thumbnail || !d.thumbnail.source) return null;
+          // Ask for a sharper version than the default small thumbnail
+          const src = d.thumbnail.source.replace(/\/\d+px-/, "/640px-");
+          return { src, fallback: d.thumbnail.source, page: d.content_urls?.desktop?.page || "", title: d.title };
+        } catch (_) { return null; }
+      })();
+      photoCache.set(title, p);
+      return p;
+    }
+
+    async function loadPhoto(el, tour) {
+      const town = (tour.location || "").split(",")[0].trim();
+      const titles = [...(PHOTO_TITLES[tour.tour_id] || []), town].filter(Boolean);
+      for (const t of titles) {
+        const photo = await wikiPhoto(t);
+        if (!photo) continue;
+        const img = el.querySelector("img");
+        const credit = el.querySelector(".credit");
+        img.onerror = () => {
+          if (img.src !== photo.fallback) img.src = photo.fallback;
+        };
+        img.onload = () => { img.classList.add("loaded"); el.classList.add("has-img"); };
+        img.alt = tour.tour_name + ", photo of " + photo.title;
+        img.src = photo.src;
+        credit.href = photo.page;
+        credit.title = "Photo: " + photo.title + ", Wikimedia Commons";
+        return;
+      }
+    }
 
     /* ---------- Helpers ---------- */
     function esc(s) {
@@ -277,7 +391,7 @@
     }
     const euro = n => new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 
-    // Proper CSV parser (handles quotes, commas and line breaks inside quotes)
+    // CSV parser that handles quotes, commas and line breaks inside quotes
     function parseCSV(text) {
       const rows = []; let row = [], field = "", q = false;
       for (let i = 0; i < text.length; i++) {
@@ -328,11 +442,11 @@
 
       const reasons = [];
       if (isNaN(price)) reasons.push("Price is missing.");
-      else if (med && (price > med * 5 || price < med * 0.3)) reasons.push("This price looks unusual compared with our other tours.");
-      if (hasNote) reasons.push("The listing contains an unusual note.");
-      if (aiNote && /implausib|unusual|check with staff|confirm/i.test(aiNote)) reasons.push(aiNote);
+      else if (med && (price > med * 5 || price < med * 0.3)) reasons.push("This price looks unusual.");
+      if (hasNote) reasons.push("The listing has an odd note in it.");
+      if (aiNote && /implausib|unusual|check with staff|confirm/i.test(aiNote) && !reasons.length) reasons.push("Our assistant flagged this one.");
       const flag = reasons.length
-        ? `<div class="flag">⚠ ${esc([...new Set(reasons)].join(" "))} Please check with our staff before booking.</div>` : "";
+        ? `<div class="flag">⚠ ${esc([...new Set(reasons)].join(" "))} Please check with staff before booking.</div>` : "";
 
       let slotsCls = "", slotsTxt;
       if (isNaN(slots)) slotsTxt = "Slots not listed";
@@ -341,27 +455,28 @@
       const pct = !isNaN(slots) && cap ? Math.min(100, Math.round((slots / cap) * 100)) : 0;
 
       return `
-        <article class="tour ${cat.cls}">
-          <div class="banner">
+        <article class="tour ${cat.cls}" data-id="${esc(t.tour_id)}">
+          <div class="photo">
+            <img alt="" loading="lazy" referrerpolicy="no-referrer">
             <span class="chip">${esc(t.category)}</span>
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${cat.icon}</svg>
-            ${WAVES}
+            <a class="credit" target="_blank" rel="noopener">📷 Wikimedia</a>
           </div>
           <div class="body">
             <h3>${esc(t.tour_name)}</h3>
             <div class="where">📍 ${esc(t.location)} · ${esc(t.meeting_point)}</div>
             <div class="price-row">
-              <div class="price">${isNaN(price) ? "N/A" : esc(euro(price))} <small>per person</small></div>
-              <div class="duration">⏱ ${esc(t.duration_hours)} hrs</div>
+              <div class="price">${isNaN(price) ? "N/A" : esc(euro(price))} <small>pp</small></div>
+              <div class="duration">⏱ ${esc(t.duration_hours)}h</div>
             </div>
             <div>
               <div class="slots ${slotsCls}">${esc(slotsTxt)}</div>
               <div class="bar ${slotsCls}"><i style="width:${pct}%"></i></div>
             </div>
-            <p class="desc">${esc(desc)}</p>
+            <p class="desc" title="Tap to read more">${esc(desc)}</p>
             <div class="tags">
               <span class="tag">📅 ${esc(t.availability)}</span>
-              <span class="tag">👥 Up to ${esc(t.capacity)}</span>
+              <span class="tag">👥 ${esc(t.capacity)}</span>
               ${t.special_offer ? `<span class="tag offer">🎁 ${esc(t.special_offer)}</span>` : ""}
             </div>
             ${flag}
@@ -373,7 +488,7 @@
       const lower = reply.toLowerCase();
       const med = median(tours.map(t => parseFloat(t.price_eur)));
 
-      // Find the tours the assistant mentioned, in the order it mentioned them
+      // Tours the assistant mentioned, in the order it mentioned them
       const found = tours
         .map(t => {
           const idPos = t.tour_id ? lower.indexOf(t.tour_id.toLowerCase()) : -1;
@@ -394,7 +509,7 @@
         if (hit) notes[hit.tour_id] = line.replace(/^\s*[-*•\d.]+\s*/, "").trim();
         else keep.push(line);
       });
-      const intro = found.length ? keep.join("\n").replace(/\n{3,}/g, "\n\n").trim() : reply;
+      const intro = found.length ? keep.join("\n").replace(/\n{2,}/g, "\n").trim() : reply;
 
       const wrap = document.createElement("div");
       wrap.className = "msg bot" + (found.length ? " wide" : "");
@@ -409,6 +524,8 @@
         grid.className = "cards";
         grid.innerHTML = found.map(t => tourCard(t, med, notes[t.tour_id])).join("");
         wrap.appendChild(grid);
+        grid.querySelectorAll(".tour").forEach((card, i) => loadPhoto(card.querySelector(".photo"), found[i]));
+        grid.querySelectorAll(".desc").forEach(d => d.addEventListener("click", () => d.classList.toggle("open")));
       }
       const meta = document.createElement("div");
       meta.className = "meta";
